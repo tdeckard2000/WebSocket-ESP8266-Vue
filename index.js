@@ -4,6 +4,7 @@ import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { WebSocketServer } from 'ws'
 import { createServer } from 'http'
+import process from 'process'
 
 const app = express()
 const __filename = fileURLToPath(import.meta.url)
