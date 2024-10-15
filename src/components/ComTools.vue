@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 
 let messages = ref([])
+let buttonDown = ref(false)
 
 onMounted(() => {
   connectWebSocket()
@@ -41,6 +42,10 @@ const connectWebSocket = () => {
         <button>LED OFF</button>
       </div>
       <div class="cContainer">
+        <img
+          :src="buttonDown ? 'public/buttonDown.png' : 'public/buttonUp.png'"
+          alt="buttonIcon"
+        />
         <div v-for="(message, index) in messages" :key="index">
           {{ message }}
         </div>
