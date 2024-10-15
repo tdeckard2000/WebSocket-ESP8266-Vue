@@ -48,7 +48,7 @@ const connectWebSocket = () => {
       </div>
       <div class="cContainer">
         <img
-          :src="buttonDown ? 'public/buttonDown.png' : 'public/buttonUp.png'"
+          :src="buttonDown ? '/buttonDown.png' : '/buttonUp.png'"
           alt="buttonIcon"
         />
       </div>
