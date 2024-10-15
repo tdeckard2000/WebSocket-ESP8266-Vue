@@ -11,6 +11,7 @@ const connectWebSocket = () => {
   }
   ws.onmessage = event => {
     console.log('Received message from WebSocket:', event.data)
+    console.log(JSON.parse(event.data))
   }
   ws.onclose = () => {
     console.log('WebSocket connection closed')

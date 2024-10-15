@@ -18,7 +18,7 @@ wss.on('connection', ws => {
     console.log(`Received message => ${message}`)
     ws.send(`Received: ${message}`)
     wss.clients.forEach(client => {
-      client.send(JSON.parse(message))
+      client.send(message)
     })
   })
   ws.send('Connected to WebSocket server')
