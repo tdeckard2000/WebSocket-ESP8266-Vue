@@ -21,8 +21,10 @@ wss.on('connection', ws => {
       client.send(message)
     })
   })
+  ws.on('error', (err) => {console.error(err)})
+  
   ws.send('Connected to WebSocket server')
-})
+}).catch(err => {console.err(err)})
 
 app.get('*', (req, res) => {
   console.log('req: ', req.url)
