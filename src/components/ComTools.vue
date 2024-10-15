@@ -11,7 +11,9 @@ const connectWebSocket = () => {
   }
   ws.onmessage = event => {
     console.log('Received message from WebSocket:', event.data)
-    console.log(event.data.text())
+    if (event.data instanceof Blob) {
+      console.log(event.data.text())
+    }
   }
   ws.onclose = () => {
     console.log('WebSocket connection closed')
