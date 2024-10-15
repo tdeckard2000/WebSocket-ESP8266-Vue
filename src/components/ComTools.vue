@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+
+let messages = ref([])
+
 onMounted(() => {
   connectWebSocket()
 })
+
 const connectWebSocket = () => {
   const ws = new WebSocket('wss://websocket-5d15bc66efcd.herokuapp.com')
   console.log('Connecting to server')
@@ -12,7 +16,9 @@ const connectWebSocket = () => {
   ws.onmessage = async event => {
     console.log('Received message from WebSocket:', event.data)
     if (event.data instanceof Blob) {
-      console.log(await event.data.text())
+      const m = await event.data.text()
+      console.log(m)
+      messages.value.push(m)
     }
   }
   ws.onclose = () => {
@@ -34,7 +40,11 @@ const connectWebSocket = () => {
         <button>LED ON</button>
         <button>LED OFF</button>
       </div>
-      <div class="cContainer">Some Response Stuff Here</div>
+      <div class="cContainer">
+        <div v-for="(message, index) in messages" :key="index">
+          {{ message }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
