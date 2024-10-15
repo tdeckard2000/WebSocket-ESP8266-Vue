@@ -4,7 +4,7 @@ onMounted(() => {
   connectWebSocket()
 })
 const connectWebSocket = () => {
-  const ws = new WebSocket('ws://websocket-5d15bc66efcd.herokuapp.com/443')
+  const ws = new WebSocket('wss://websocket-5d15bc66efcd.herokuapp.com')
   console.log('Connecting to server')
   ws.onopen = () => {
     console.log('Connected to server')
