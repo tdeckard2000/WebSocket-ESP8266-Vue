@@ -16,13 +16,14 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketsClient.h>
 #include <WiFiClientSecure.h>
-#define D2 4  //LED
+#define D2 4  //built-in LED
 #define D4 2
+#define D5 14  //LED
 
-const char* ssid = "******";  //Wifi name
-const char* password = "******"; //Wifi pass
+const char* ssid = "*****";  //Wifi name
+const char* password = "*****";              //Wifi pass
 const char* serverUrl = "websocket-5d15bc66efcd.herokuapp.com";
-const int serverPort = 443; //heroku uses 443 or 80 or 29098
+const int serverPort = 443;  //heroku uses 443 or 80 or 29098
 bool webSocketConnected = false;
 int previousPinState = 0;
 const long interval = 100;
@@ -31,7 +32,7 @@ unsigned long previousMillis = 0;
 // WiFiClientSecure client;
 WebSocketsClient webSocket;
 
-void toggleLED(int state) {
+void toggleInternalLED(int state) {
   digitalWrite(D4, state == 1 ? LOW : HIGH);
 }
 
@@ -41,7 +42,7 @@ void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
   switch (type) {
     case WStype_DISCONNECTED:
       Serial.println("Disconnected from WebSocket server");
-      toggleLED(1);
+      toggleInternalLED(1);
       webSocketConnected = false;
       // connectToWifi();
       // connectToServer();
@@ -49,15 +50,37 @@ void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
     case WStype_CONNECTED:
       Serial.println("Connected to WebSocket server");
       webSocket.sendTXT("Hello from ESP8266");
-      toggleLED(0);
+      toggleInternalLED(0);
       webSocketConnected = true;
       break;
     case WStype_TEXT:
-      Serial.printf("Message from server: %s\n", payload);
+      {
+        String message = String((char*)payload);
+        Serial.printf("Message from server: %s\n", message.c_str());
+        if (message == "LED_ON") {
+          toggleLED(1);
+        } else if (message == "LED_OFF") {
+          toggleLED(0);
+        }
+      }
       break;
+    case WStype_BIN:
+      {
+        Serial.println("Binary message received.");
+        String message;
+        for (size_t i = 0; i < length; i++) {
+          message += (char)payload[i];
+        }
+        Serial.printf("Converted binary to string: %s\n", message.c_str());
+        if (message == "LED_ON") {
+          toggleLED(1);
+        } else if (message == "LED_OFF") {
+          toggleLED(0);
+        }
+        break;
+      }
     case WStype_ERROR:
       Serial.println("Error occurred with WebSocket");
-      break;
   }
 }
 
@@ -145,12 +168,22 @@ void checkForUpdatedPinState() {
   }
 }
 
+void toggleLED(int on) {
+  if (on) {
+    digitalWrite(D5, HIGH);
+  } else {
+    digitalWrite(D5, LOW);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   pinMode(D2, INPUT_PULLUP);
   pinMode(D4, OUTPUT);
+  pinMode(D5, OUTPUT);
   connectToWifi();
   connectToServer();
+  toggleLED(0);
 }
 
 void loop() {

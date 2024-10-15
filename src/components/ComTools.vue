@@ -3,13 +3,18 @@ import { onMounted, ref } from 'vue'
 
 let messages = ref([])
 let buttonDown = ref(false)
+let ws
 
 onMounted(() => {
   connectWebSocket()
 })
 
+const toggleLED = req => {
+  ws.send(req)
+}
+
 const connectWebSocket = () => {
-  const ws = new WebSocket('wss://websocket-5d15bc66efcd.herokuapp.com')
+  ws = new WebSocket('wss://websocket-5d15bc66efcd.herokuapp.com')
   console.log('Connecting to server')
   ws.onopen = () => {
     console.log('Connected to server')
@@ -44,8 +49,15 @@ const connectWebSocket = () => {
         <h2 style="text-align: center; font-weight: bold">Socket Tools</h2>
       </div>
       <div class="cContainer">
-        <button>LED ON</button>
-        <button>LED OFF</button>
+        <button @click="toggleLED('LED_ON')">LED ON</button>
+        <button
+          @mousedown="toggleLED('LED_ON')"
+          @mouseup="toggleLED('LED_OFF')"
+          style="border-radius: 100px; width: 50px"
+        >
+          Hold
+        </button>
+        <button @click="toggleLED('LED_OFF')">LED OFF</button>
       </div>
       <div class="cContainer">
         <img
