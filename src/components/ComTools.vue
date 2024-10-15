@@ -52,9 +52,18 @@ const connectWebSocket = () => {
           alt="buttonIcon"
         />
       </div>
-      <div class="cContainer" style="flex-direction: column">
+      <div
+        class="cContainer"
+        style="
+          flex-direction: column;
+          overflow: auto;
+          max-height: 100px;
+          margin-left: 30px;
+          margin-bottom: 30px;
+        "
+      >
         <div v-for="(message, index) in messages" :key="index">
-          {{ message }}
+          {{ index + '. ' + message }}
         </div>
       </div>
     </div>
