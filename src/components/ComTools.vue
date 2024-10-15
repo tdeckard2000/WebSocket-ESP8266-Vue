@@ -28,6 +28,7 @@ const connectWebSocket = () => {
     }
   }
   ws.onclose = () => {
+    connectWebSocket()
     console.log('WebSocket connection closed')
   }
   ws.onerror = error => {
