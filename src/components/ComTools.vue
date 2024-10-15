@@ -9,10 +9,10 @@ const connectWebSocket = () => {
   ws.onopen = () => {
     console.log('Connected to server')
   }
-  ws.onmessage = event => {
+  ws.onmessage = async event => {
     console.log('Received message from WebSocket:', event.data)
     if (event.data instanceof Blob) {
-      console.log(event.data.text())
+      console.log(await event.data.text())
     }
   }
   ws.onclose = () => {
