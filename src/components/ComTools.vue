@@ -19,6 +19,11 @@ const connectWebSocket = () => {
     if (event.data instanceof Blob) {
       const m = await event.data.text()
       console.log(m)
+      if (m === 'Button Down') {
+        buttonDown.value = true
+      } else if (m === 'Button Up') {
+        buttonDown.value = false
+      }
       messages.value.push(m)
     }
   }
@@ -46,6 +51,8 @@ const connectWebSocket = () => {
           :src="buttonDown ? 'public/buttonDown.png' : 'public/buttonUp.png'"
           alt="buttonIcon"
         />
+      </div>
+      <div class="cContainer" style="flex-direction: column">
         <div v-for="(message, index) in messages" :key="index">
           {{ message }}
         </div>
