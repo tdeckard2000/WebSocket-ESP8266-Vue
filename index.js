@@ -21,8 +21,9 @@ wss.on('connection', ws => {
       client.send(message)
     })
   })
-  ws.on('error', (err) => {console.error(err)})
-  
+  ws.on('error', err => {
+    console.error(err)
+  })
   ws.send('Connected to WebSocket server')
 })
 
