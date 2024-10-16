@@ -20,8 +20,8 @@
 
 using namespace websockets;
 
-const char* ssid = "***REMOVED***"; //Wifi name
-const char* password = "***REMOVED***"; //Wifi pass
+const char* ssid = "*****"; //Wifi name
+const char* password = "*****"; //Wifi pass
 const char* wssUrl = "wss://websocket-5d15bc66efcd.herokuapp.com/";
 int previousPinState = 0;
 const long interval = 100;
