@@ -7,11 +7,14 @@
  * 3. Place a red led on pin D3 (off: Connected to wifi)
  * 4. Place a blue led on pin D5 (off: Connected to server)
  * 5. Ground D2 to send message to server
- * 6. To track lighting, a photo sensor can be connected to D6 and 3.3v, with
+ * 6. Optional: To track lighting, a photo sensor can be connected to D6 and 3.3v, with
       a pulldown resistor from D6 to ground.
+ * 7. Optional: To sound a buzzer, connect a buzzer to D7 and ground.
  *
  * ESP will constantly try to establish socket and wifi connections.
 */
+
+![Bread Board Example](../public/Bread_Board_Example.jpg)
 
 #include <ESP8266WiFi.h>
 #include <ArduinoWebsockets.h>
@@ -20,6 +23,7 @@
 #define D4 2   // Built-in LED
 #define D5 14  // LED
 #define D6 12  // Photo Sensor
+#define D7 13  // Buzzer
 
 using namespace websockets;
 
@@ -68,6 +72,15 @@ void connectToWifi() {
   Serial.println(WiFi.localIP());
 }
 
+void soundBuzzer() {
+  for (int i = 0; i < 3 i++) {
+    toggleBuzzer(1);
+    delay(300);
+    toggleBuzzer(0);
+    delay(300);
+  }
+}
+
 void handleMessage(String message) {
   Serial.println(message);
   if (message == "LED_ON") {
@@ -77,8 +90,12 @@ void handleMessage(String message) {
     toggleLED(0);
     sendMessage("ESP1 Received " + message);
   } else if (message == "REQUEST_ROOM_LIGHT_STATE") {
-      int lightSensorState = getPinState(D6);
-      sendLightSensorState(lightSensorState);
+    int lightSensorState = getPinState(D6);
+    sendLightSensorState(lightSensorState);
+  } else if (message == "SOUND_BUZZER") {
+    sendMessage("ESP1 Sounding Buzzer... ");
+    soundBuzzer();
+    sendMessage("ESP1 Done Sounding Buzzer");
   }
 }
 
@@ -140,6 +157,14 @@ void toggleLED(int on) {
   }
 }
 
+void toggleBuzzer(int on) {
+  if (on) {
+    digitalWrite(D7, HIGH);
+  } else {
+    digitalWrite(D7, LOW);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   pinMode(D2, INPUT_PULLUP);
@@ -147,6 +172,8 @@ void setup() {
   pinMode(D4, OUTPUT);
   pinMode(D5, OUTPUT);
   pinMode(D6, INPUT);
+  pinMode(D7, OUTPUT);
+  toggleBuzzer(0);
   toggleWifiLED(1);
   connectToWifi();
   connectToServer();

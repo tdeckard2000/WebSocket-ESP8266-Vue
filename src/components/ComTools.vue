@@ -20,6 +20,10 @@ const requestRoomLightState = () => {
   ws.send("REQUEST_ROOM_LIGHT_STATE")
 }
 
+const soundBuzzer = () => {
+  ws.send("SOUND_BUZZER")
+}
+
 const scrollToBottom = () => {
   if(autoScrollOn.value) {
     nextTick(() => {
@@ -79,14 +83,17 @@ const connectWebSocket = () => {
       </div>
       <div class="cContainer">
         <button @click="toggleLED('LED_ON')">LED ON</button>
+        <button @click="toggleLED('LED_OFF')">LED OFF</button>
         <button
           @mousedown="toggleLED('LED_ON')"
           @mouseup="toggleLED('LED_OFF')"
-          style="border-radius: 100px; width: 50px"
+          
         >
-          Hold
+          LED HOLD
         </button>
-        <button @click="toggleLED('LED_OFF')">LED OFF</button>
+        <button @click="soundBuzzer()">
+          BUZZER
+        </button>
       </div>
       <div class="cContainer" style="align-items: center;">
         <img
@@ -126,9 +133,9 @@ const connectWebSocket = () => {
 button {
   border: 0;
   border-radius: 6px;
-  margin: 0 20px;
+  margin: 0 8px;
   height: 30px;
-  width: 80px;
+  width: 70px;
   cursor: pointer;
 }
 
