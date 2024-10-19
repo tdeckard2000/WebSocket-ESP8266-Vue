@@ -39,7 +39,7 @@ const connectWebSocket = () => {
   ws.onerror = error => {
     console.error('WebSocket error:', error)
   }
-}
+} 
 </script>
 
 <template>
@@ -101,6 +101,7 @@ button:hover {
   border: 1px solid white;
   border-radius: 8px;
   width: 500px;
+  max-width: 100vw;
 }
 
 .pContainer {
