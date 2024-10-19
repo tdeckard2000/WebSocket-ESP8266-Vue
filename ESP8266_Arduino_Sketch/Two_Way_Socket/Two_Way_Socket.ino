@@ -14,8 +14,6 @@
  * ESP will constantly try to establish socket and wifi connections.
 */
 
-![Bread Board Example](../public/Bread_Board_Example.jpg)
-
 #include <ESP8266WiFi.h>
 #include <ArduinoWebsockets.h>
 #define D2 4   // Button
