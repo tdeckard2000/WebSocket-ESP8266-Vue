@@ -7,25 +7,30 @@
  * 3. Place a red led on pin D3 (off: Connected to wifi)
  * 4. Place a blue led on pin D5 (off: Connected to server)
  * 5. Ground D2 to send message to server
+ * 6. To track lighting, a photo sensor can be connected to D6 and 3.3v, with
+      a pulldown resistor from D6 to ground.
  *
- * Will constantly try to establish socket and wifi connections.
+ * ESP will constantly try to establish socket and wifi connections.
 */
 
 #include <ESP8266WiFi.h>
 #include <ArduinoWebsockets.h>
-#define D2 4  // Button
-#define D3 0  // Wifi Status LED
-#define D4 2  // Built-in LED
-#define D5 14 // LED
+#define D2 4   // Button
+#define D3 0   // Wifi Status LED
+#define D4 2   // Built-in LED
+#define D5 14  // LED
+#define D6 12  // Photo Sensor
 
 using namespace websockets;
 
-const char* ssid = "*****"; //Wifi name
+const char* ssid = "*****";     //Wifi name
 const char* password = "*****"; //Wifi pass
 const char* wssUrl = "wss://websocket-5d15bc66efcd.herokuapp.com/";
 int previousPinState = 0;
-const long interval = 100;
-unsigned long previousMillis = 0;
+int previousLightSensorState = 0;
+const long debounceInterval = 100;
+unsigned long buttonDebounce = 0;
+unsigned long lightDebounce = 0;
 
 WebsocketsClient client;
 
@@ -34,17 +39,12 @@ void toggleInternalLED(int state) {
 }
 
 int getPinState(int pin) {
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
-    int state = digitalRead(pin);
-    if (state == LOW) {
-      return 0;
-    } else if (state == HIGH) {
-      return 1;
-    }
+  int state = digitalRead(pin);
+  if (state == LOW) {
+    return 0;
+  } else {
+    return 1;
   }
-  return previousPinState;
 }
 
 void connectToWifi() {
@@ -72,8 +72,13 @@ void handleMessage(String message) {
   Serial.println(message);
   if (message == "LED_ON") {
     toggleLED(1);
+    sendMessage("ESP1 Received " + message);
   } else if (message == "LED_OFF") {
     toggleLED(0);
+    sendMessage("ESP1 Received " + message);
+  } else if (message == "REQUEST_ROOM_LIGHT_STATE") {
+      int lightSensorState = getPinState(D6);
+      sendLightSensorState(lightSensorState);
   }
 }
 
@@ -90,13 +95,33 @@ void sendMessage(String message) {
   client.send(message);
 }
 
+int debounceTimePassed(unsigned long previousMillis) {
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= debounceInterval) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 void checkForUpdatedPinState() {
   int pinState = getPinState(D2);
-  if (pinState != previousPinState) {
+  int lightSensorState = getPinState(D6);
+  if (pinState != previousPinState && debounceTimePassed(buttonDebounce)) {
+    buttonDebounce = millis();
     previousPinState = pinState;
     Serial.println(pinState);
-    sendMessage(pinState == 0 ? "Button Down" : "Button Up");
+    sendMessage(pinState == 0 ? "buttonDown" : "buttonUp");
   }
+  if (lightSensorState != previousLightSensorState && debounceTimePassed(lightDebounce)) {
+    lightDebounce = millis();
+    previousLightSensorState = lightSensorState;
+    sendLightSensorState(lightSensorState);
+  }
+}
+
+void sendLightSensorState(int pinState) {
+  sendMessage(pinState ? "roomLightsOn" : "roomLightsOff");
 }
 
 void toggleWifiLED(int on) {
@@ -121,6 +146,7 @@ void setup() {
   pinMode(D3, OUTPUT);
   pinMode(D4, OUTPUT);
   pinMode(D5, OUTPUT);
+  pinMode(D6, INPUT);
   toggleWifiLED(1);
   connectToWifi();
   connectToServer();

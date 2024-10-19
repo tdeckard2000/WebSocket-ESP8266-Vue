@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 
 let messages = ref([])
 let buttonDown = ref(false)
+let roomLightsOn = ref(false)
+let autoScrollOn = ref(true)
+const messageContainer = ref(null)
 let ws
 
 onMounted(() => {
@@ -11,6 +14,21 @@ onMounted(() => {
 
 const toggleLED = req => {
   ws.send(req)
+}
+
+const requestRoomLightState = () => {
+  ws.send("REQUEST_ROOM_LIGHT_STATE")
+}
+
+const scrollToBottom = () => {
+  if(autoScrollOn.value) {
+    nextTick(() => {
+      if(messageContainer.value) {
+        console.log(messageContainer.value.scrollHeight)
+        messageContainer.value.scrollTop = messageContainer.value.scrollHeight - 140
+      }
+    })
+  }
 }
 
 const connectWebSocket = () => {
@@ -24,12 +42,23 @@ const connectWebSocket = () => {
     if (event.data instanceof Blob) {
       const m = await event.data.text()
       console.log(m)
-      if (m === 'Button Down') {
-        buttonDown.value = true
-      } else if (m === 'Button Up') {
-        buttonDown.value = false
+      switch (m) {
+        case 'buttonDown':
+          buttonDown.value = true
+          break
+        case 'buttonUp':
+          buttonDown.value = false
+          break
+        case 'roomLightsOn':
+          roomLightsOn.value = true;
+          break
+        case 'roomLightsOff':
+          roomLightsOn.value = false;
+          break
+        default:
       }
       messages.value.push(m)
+      scrollToBottom()
     }
   }
   ws.onclose = () => {
@@ -39,7 +68,7 @@ const connectWebSocket = () => {
   ws.onerror = error => {
     console.error('WebSocket error:', error)
   }
-} 
+}
 </script>
 
 <template>
@@ -59,14 +88,24 @@ const connectWebSocket = () => {
         </button>
         <button @click="toggleLED('LED_OFF')">LED OFF</button>
       </div>
-      <div class="cContainer">
+      <div class="cContainer" style="align-items: center;">
         <img
           :src="buttonDown ? '/buttonDown.png' : '/buttonUp.png'"
           alt="buttonIcon"
+          style="height: 61px; padding: 0 10px;"
+        />
+        <img
+          :src="roomLightsOn ? '/lightBulbOn.png' : '/lightBulbOff.png'"
+          alt="lightBulbIpxcon"
+          title="Will auto-update when room lights are turned on/off. Click to update now."
+          style="height: 80px; padding: 0 10px; cursor: pointer;"
+          @click="requestRoomLightState"
         />
       </div>
+      <div style="text-align: end; padding-right: 20px; cursor: pointer;" @click="autoScrollOn = !autoScrollOn">Auto Scroll {{autoScrollOn ? 'On' : 'Off' }}</div>
       <div
         class="cContainer"
+        ref="messageContainer"
         style="
           flex-direction: column;
           overflow: auto;
