@@ -19,4 +19,4 @@ Using the ESP8266 board with Arduino IDE:
     Use this Board Manager URL: https://arduino.esp8266.com/stable/package_esp8266com_index.json (added under File > preferences > Settings tab)
     Select 'Generic ESP8266 Module' from the board selector.
 
-![Bread Board Example](../public/Bread_Board_Example.jpg)
+![Bread Board Example](https://github.com/tdeckard2000/WebSocket-ESP8266-Vue/blob/main/public/Bread_Board_Image.jpg)
