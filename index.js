@@ -27,6 +27,13 @@ wss.on('connection', ws => {
   ws.send('Connected to WebSocket server')
 })
 
+app.get('/api', (req, res) => {
+  const { send } = req.query;
+  console.log('Received text: ', send);
+  res.send('Text logged successfully');
+  ws.send(send)
+});
+
 app.get('*', (req, res) => {
   console.log('req: ', req.url)
   console.log('dirname: ', __dirname)
