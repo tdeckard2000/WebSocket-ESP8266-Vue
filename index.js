@@ -30,7 +30,7 @@ wss.on('connection', ws => {
 app.get('/api', (req, res) => {
   const { send } = req.query;
   console.log('Received text: ', send);
-  res.send('Text logged successfully');
+  res.send(`Text logged successfully: ${send}`);
   ws.send(send)
 });
 
