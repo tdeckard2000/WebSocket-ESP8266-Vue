@@ -30,8 +30,14 @@ wss.on('connection', ws => {
 app.get('/api', (req, res) => {
   const { send } = req.query;
   console.log('Received text: ', send);
+  wss.clients.forEach(client => {
+    console.log("client", client.readyState)
+    if(client.readyState === client.OPEN) {
+      console.log("send: ", send)
+      client.send(send);
+    }
+  })
   res.send(`Text logged successfully: ${send}`);
-  ws.send(send)
 });
 
 app.get('*', (req, res) => {
